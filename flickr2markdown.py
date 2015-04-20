@@ -2,7 +2,7 @@ from urllib.parse import urlencode
 import requests
 import click
 
-API_KEY = 'e8ccf1cc1cbbae254459539e1cbf049c'
+API_KEY = '2207902126a225122e46533e82b6a947'
 
 
 def source_url(farm, server, id, secret, size):
