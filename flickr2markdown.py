@@ -1,6 +1,8 @@
 from urllib.parse import urlencode
-import requests
 import click
+import requests
+import sys
+
 
 API_KEY = '2207902126a225122e46533e82b6a947'
 
@@ -68,18 +70,52 @@ def photos(username):
     return r.json()['photos']['photo']
 
 
+def single_photo(id):
+    '''returns photo data for markdown method for a single picture'''
+    query_string = urlencode({
+        'method': 'flickr.photos.getInfo',
+        'api_key': API_KEY,
+        'photo_id': id,
+        'format': 'json',
+        'nojsoncallback': '1'
+    })
+
+    r = requests.get('https://api.flickr.com/services/rest/?' + query_string)
+    data = r.json()['photo']
+
+    photo_data = {
+        'title': data['title']['_content'],
+        'farm': data['farm'],
+        'server': data['server'],
+        'id': id,
+        'secret': data['secret'],
+        'owner': data['owner']['username']
+    }
+
+    return photo_data
+
+
 @click.command()
-@click.option('--user', prompt='Username', help='Flickr Username')
-@click.option('--count', default=1, help='Number of last pictures to fetch')
+@click.option('--user', help='Flickr Username')
+@click.option('--count', type=click.INT,
+              help='Number of last pictures to fetch')
+@click.option('--id', help='ID of a single image')
 @click.option('--size',
               default='large',
               type=click.Choice(['small', 'medium', 'large']),
               help='Image size: small, medium, large')
-def print_links(user, count, size):
-    pics = photos(user)[:count]
+def print_links(user, count, size, id):
+    if count and count >= 1:
+        pics = photos(user)[:count]
 
-    for pic in pics:
-        print(markdown(pic, size))
+        for pic in pics:
+            print(markdown(pic, size))
+
+    elif count == 0:
+        sys.exit(0)
+
+    elif id:
+        print(markdown(single_photo(id), size))
 
 
 if __name__ == '__main__':
