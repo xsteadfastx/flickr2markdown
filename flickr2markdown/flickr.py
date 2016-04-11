@@ -1,10 +1,5 @@
 from urllib.parse import urlencode
-import click
 import requests
-import sys
-
-
-API_KEY = '2207902126a225122e46533e82b6a947'
 
 
 def source_url(farm, server, id, secret, size):
@@ -38,11 +33,11 @@ def markdown(photo_data, size):
                  photo_data['id']))
 
 
-def user_id(username):
+def user_id(username, api_key):
     '''gets flickr user id from username'''
     query_string = urlencode({
         'method': 'flickr.people.findByUsername',
-        'api_key': API_KEY,
+        'api_key': api_key,
         'username': username,
         'format': 'json',
         'nojsoncallback': '1'
@@ -53,13 +48,13 @@ def user_id(username):
     return r.json()['user']['id']
 
 
-def photos(username):
+def photos(username, api_key):
     '''gets last uploaded pictures'''
-    user = user_id(username)
+    user = user_id(username, api_key)
 
     query_string = urlencode({
         'method': 'flickr.people.getPublicPhotos',
-        'api_key': API_KEY,
+        'api_key': api_key,
         'user_id': user,
         'format': 'json',
         'nojsoncallback': '1'
@@ -70,11 +65,11 @@ def photos(username):
     return r.json()['photos']['photo']
 
 
-def single_photo(id):
+def single_photo(id, api_key):
     '''returns photo data for markdown method for a single picture'''
     query_string = urlencode({
         'method': 'flickr.photos.getInfo',
-        'api_key': API_KEY,
+        'api_key': api_key,
         'photo_id': id,
         'format': 'json',
         'nojsoncallback': '1'
@@ -93,30 +88,3 @@ def single_photo(id):
     }
 
     return photo_data
-
-
-@click.command()
-@click.option('--user', help='Flickr Username')
-@click.option('--count', type=click.INT,
-              help='Number of last pictures to fetch')
-@click.option('--id', help='ID of a single image')
-@click.option('--size',
-              default='large',
-              type=click.Choice(['small', 'medium', 'large']),
-              help='Image size: small, medium, large')
-def print_links(user, count, size, id):
-    if count and count >= 1:
-        pics = photos(user)[:count]
-
-        for pic in pics:
-            print(markdown(pic, size))
-
-    elif count == 0:
-        sys.exit(0)
-
-    elif id:
-        print(markdown(single_photo(id), size))
-
-
-if __name__ == '__main__':
-    print_links()
