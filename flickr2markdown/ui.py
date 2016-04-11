@@ -6,10 +6,14 @@ import sys
 from flickr2markdown.flickr import photos, markdown, single_photo
 
 
-def get_api_key():
+def parse_config():
     config = ConfigParser()
     config.read(join(expanduser('~'), '.flickr2markdown'))
 
+    return config
+
+
+def get_api_key(config):
     api_key = config['API'].get('key')
 
     if not api_key:
@@ -17,6 +21,14 @@ def get_api_key():
         sys.exit(1)
 
     return api_key
+
+
+def get_defaults(config):
+    return {
+        'user': config['Defaults'].get('user', None),
+        'size': config['Defaults'].get('size', None)
+
+    }
 
 
 @click.command()
@@ -30,7 +42,15 @@ def get_api_key():
               type=click.Choice(['small', 'medium', 'large']),
               help='Image size: small, medium, large')
 def main(user, count, size, id):
-    api_key = get_api_key()
+    config = parse_config()
+    api_key = get_api_key(config)
+    defaults = get_defaults(config)
+
+    if defaults['user']:
+        user = defaults['user']
+
+    if defaults['size'] and defaults['size'] in ['small', 'medium', 'large']:
+        size = defaults['size']
 
     if count and count >= 1:
         pics = photos(user, api_key)[:count]
