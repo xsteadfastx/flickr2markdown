@@ -7,6 +7,7 @@ Fetches last Flickr uploads and convert them to markdown syntax for using it in 
           --user TEXT                  Flickr Username
           --count INTEGER              Number of last pictures to fetch
           --id TEXT                    ID of a single image
+          --url TEXT                   URL of a single image
           --size [small|medium|large]  Image size: small, medium, large
           --help                       Show this message and exit.
 

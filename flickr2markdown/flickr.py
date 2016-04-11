@@ -1,5 +1,6 @@
 from urllib.parse import urlencode
 import requests
+import re
 
 
 def source_url(farm, server, id, secret, size):
@@ -88,3 +89,10 @@ def single_photo(id, api_key):
     }
 
     return photo_data
+
+
+def parse_url(url):
+    '''parses url for photo id'''
+    id_re = re.compile(r'https://www\.flickr\.com/photos/.+/(\d+)/.+')
+
+    return id_re.search(url).group(1)

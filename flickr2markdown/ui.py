@@ -3,7 +3,7 @@ from os.path import expanduser, join
 import click
 import sys
 
-from flickr2markdown.flickr import photos, markdown, single_photo
+from flickr2markdown.flickr import photos, markdown, single_photo, parse_url
 
 
 def parse_config():
@@ -37,11 +37,12 @@ def get_defaults(config):
 @click.option('--count', type=click.INT,
               help='Number of last pictures to fetch')
 @click.option('--id', help='ID of a single image')
+@click.option('--url', help='URL of a single image')
 @click.option('--size',
               default='large',
               type=click.Choice(['small', 'medium', 'large']),
               help='Image size: small, medium, large')
-def main(user, count, size, id):
+def main(user, count, size, id, url):
     config = parse_config()
     api_key = get_api_key(config)
     defaults = get_defaults(config)
@@ -63,3 +64,6 @@ def main(user, count, size, id):
 
     elif id:
         click.echo(markdown(single_photo(id, api_key), size))
+
+    elif url:
+        click.echo(markdown(single_photo(parse_url(url), api_key), size))
